@@ -1,0 +1,11 @@
+[Discord]
+Token =
+ServerID =
+PostsChannel =
+ReportsChannel =
+
+[Reddit]
+ClientID =
+ClientSecret =
+Username =
+Password =

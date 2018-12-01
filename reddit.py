@@ -24,11 +24,11 @@ class Reddit:
         try:
             submission = self.reddit.submission(id=post_id)
             submission.mod.remove()
-            submission.mod.lock()
         except Exception as e:
             raise ValueError(str(e))
         if reasons is not None:
             submission.reply(reasons).mod.distinguish()
+            submission.mod.lock()
         if is_report:
             response = await posts.mark_report_resolved(post_id)
         else:

@@ -24,6 +24,7 @@ class Reddit:
         try:
             submission = self.reddit.submission(id=post_id)
             submission.mod.remove()
+            submission.mod.lock()
         except Exception as e:
             raise ValueError(str(e))
         if reasons is not None:

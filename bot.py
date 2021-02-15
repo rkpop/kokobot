@@ -20,12 +20,11 @@ praw = reddit.praw()
 posts = posts.Posts()
 reasons = reasons.Reasons()
 parser = parser.CommandParser()
-conn = sqlite3.connect('kokobot.db')
+conn = sqlite3.connect("kokobot.db")
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read("config.ini")
 
-help_message = \
-'''
+help_message = """
 Command: `/kkb <action> [args]`
 
 Approve/Remove Comment:
@@ -58,68 +57,68 @@ Get help:
 
     `/kkb help`
 
-'''
+"""
+
 
 @client.event
 async def on_ready():
-    print('Logged in as')
+    print("Logged in as")
     print(client.user.name)
     print(client.user.id)
-    print('------')
+    print("------")
+
 
 def create_post_em(submission, reports=False):
     color = 0xFFBD24 if submission.is_self else 0x00BCD4
     if reports:
-        report_string = ''
+        report_string = ""
         for report in submission.mod_reports:
-            report_string += '{}: {}\n'.format(report[1], report[0])
+            report_string += "{}: {}\n".format(report[1], report[0])
         for report in submission.user_reports:
-            report_string += '{}: {}\n'.format(report[1], report[0])
-        description = '{}\n Post ID: {}'.format(report_string, submission.id)
+            report_string += "{}: {}\n".format(report[1], report[0])
+        description = "{}\n Post ID: {}".format(report_string, submission.id)
     else:
-        description = 'Post ID: {}'.format(submission.id)
+        description = "Post ID: {}".format(submission.id)
     if submission.is_self:
-        title_string = '{}'.format(submission.title)
+        title_string = "{}".format(submission.title)
     else:
-        title_string = '{} ({})'.format(submission.title, submission.domain)
+        title_string = "{} ({})".format(submission.title, submission.domain)
     em = Embed(
         title=title_string,
         description=description,
-        url='https://redd.it/{}'.format(submission.id),
-        colour=color
+        url="https://redd.it/{}".format(submission.id),
+        colour=color,
     )
-    if not submission.is_self and hasattr(submission, 'preview'):
-        em.set_thumbnail(
-            url=submission.preview['images'][0]['resolutions'][0]['url']
-        )
+    if not submission.is_self and hasattr(submission, "preview"):
+        em.set_thumbnail(url=submission.preview["images"][0]["resolutions"][0]["url"])
     em.set_author(
-        name='u/{}'.format(submission.author),
-        icon_url=client.user.default_avatar_url
+        name="u/{}".format(submission.author), icon_url=client.user.default_avatar_url
     )
     return em
 
+
 def create_comment_em(submission):
-    report_string = ''
+    report_string = ""
     for report in submission.mod_reports:
-        report_string += '{}: {}\n'.format(report[1], report[0])
+        report_string += "{}: {}\n".format(report[1], report[0])
     for report in submission.user_reports:
-        report_string += '{}: {}\n'.format(report[1], report[0])
+        report_string += "{}: {}\n".format(report[1], report[0])
     em = Embed(
-        title='Comment: {}'.format(submission.id),
-        description='{}\n{}'.format(submission.body, report_string),
-        url='https://reddit.com{}'.format(submission.permalink),
+        title="Comment: {}".format(submission.id),
+        description="{}\n{}".format(submission.body, report_string),
+        url="https://reddit.com{}".format(submission.permalink),
     )
     em.set_author(
-        name='u/{}'.format(submission.author),
-        icon_url=client.user.default_avatar_url
+        name="u/{}".format(submission.author), icon_url=client.user.default_avatar_url
     )
     return em
+
 
 async def stream_sub():
     await client.wait_until_ready()
-    server = client.get_server(config['Discord']['ServerID'])
-    channel = utils.get(server.channels, name=config['Discord']['PostsChannel'])
-    subreddit = praw.subreddit('kpop')
+    server = client.get_server(config["Discord"]["ServerID"])
+    channel = utils.get(server.channels, name=config["Discord"]["PostsChannel"])
+    subreddit = praw.subreddit("kpop")
 
     while not client.is_closed:
         for submission in subreddit.mod.unmoderated():
@@ -129,11 +128,12 @@ async def stream_sub():
                 posts.add_post(submission.id, sent_message.id, channel.id)
         await asyncio.sleep(10)
 
+
 async def stream_reports():
     await client.wait_until_ready()
-    server = client.get_server(config['Discord']['ServerID'])
-    channel = utils.get(server.channels, name=config['Discord']['ReportsChannel'])
-    subreddit = praw.subreddit('kpop')
+    server = client.get_server(config["Discord"]["ServerID"])
+    channel = utils.get(server.channels, name=config["Discord"]["ReportsChannel"])
+    subreddit = praw.subreddit("kpop")
 
     while not client.is_closed:
         for submission in subreddit.mod.modqueue():
@@ -153,9 +153,10 @@ async def stream_reports():
                 posts.unresolve_report(submission.id, sent_message.id, channel.id)
         await asyncio.sleep(10)
 
+
 async def purge_channels():
     await client.wait_until_ready()
-    subreddit = praw.subreddit('kpop')
+    subreddit = praw.subreddit("kpop")
 
     while not client.is_closed:
         c = conn.cursor()
@@ -165,7 +166,7 @@ async def purge_channels():
         for submission in subreddit.mod.modqueue():
             report_ids.append(submission.id)
 
-        c.execute('SELECT submission_id FROM reports WHERE resolved=0')
+        c.execute("SELECT submission_id FROM reports WHERE resolved=0")
         unresolved_reports = c.fetchall()
 
         resolved_reports = []
@@ -181,7 +182,7 @@ async def purge_channels():
         for post in subreddit.mod.unmoderated():
             unmoderated_ids.append(post.id)
 
-        c.execute('SELECT post_id FROM posts WHERE resolved=0')
+        c.execute("SELECT post_id FROM posts WHERE resolved=0")
         unresolved_posts = c.fetchall()
 
         resolved_posts = []
@@ -200,7 +201,7 @@ async def parse_command(message):
 
     cmd_args.pop(0)
 
-    if len(cmd_args) == 1 and cmd_args[0] == 'help':
+    if len(cmd_args) == 1 and cmd_args[0] == "help":
         await client.send_message(message.channel, help_message)
         return True
 
@@ -215,12 +216,13 @@ async def parse_command(message):
 
 @client.event
 async def on_message(message):
-    if message.content.startswith('/kkb'):
+    if message.content.startswith("/kkb"):
         success = await parse_command(message)
         if success:
             await client.delete_message(message)
 
+
 client.loop.create_task(stream_sub())
 client.loop.create_task(stream_reports())
 client.loop.create_task(purge_channels())
-client.run(config['Discord']['Token'])
+client.run(config["Discord"]["Token"])

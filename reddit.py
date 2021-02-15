@@ -5,17 +5,21 @@ import posts
 import configparser
 
 posts = posts.Posts()
-conn = sqlite3.connect('kokobot.db')
+conn = sqlite3.connect("kokobot.db")
 config = configparser.ConfigParser()
-config.read('config.ini');
+config.read("config.ini")
+
 
 class Reddit:
 
-    reddit = praw.Reddit(client_id=config['Reddit']['ClientID'],
-                         client_secret=config['Reddit']['ClientSecret'],
-                         password=config['Reddit']['Password'],
-                         user_agent='KoKoBot/0.1 by Kilenaitor',
-                         username=config['Reddit']['Username'])
+    reddit = praw.Reddit(
+        client_id=config["Reddit"]["ClientID"],
+        client_secret=config["Reddit"]["ClientSecret"],
+        password=config["Reddit"]["Password"],
+        user_agent="KoKoBot/0.1 by Kilenaitor",
+        username=config["Reddit"]["Username"],
+    )
+
     def praw(self):
         return self.reddit
 
@@ -65,4 +69,3 @@ class Reddit:
             raise ValueError(str(e))
         response = await posts.mark_report_resolved(comment_id)
         return response
-

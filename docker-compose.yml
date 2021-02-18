@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  bot:
+    image: kokobot:1
+    build:
+      context: .
+      args:
+        DB_PATH: '/var/kokobot/db/kokobot.db'
+    environment:
+      DB_PATH: '/var/kokobot/db/kokobot.db'
+      CONFIG_PATH: '/var/kokobot/config.ini'
+    volumes:
+      - 'db_data:/var/kokobot/db/'
+
+volumes:
+  db_data: {}

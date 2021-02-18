@@ -1,9 +1,8 @@
-CREATE TABLE posts (
-`message_id` INT,
-`post_id` VARCHAR(10),
-`resolved` INT DEFAULT 0, `channel_id` INT);
-
-CREATE TABLE reports (
-`message_id` INT,
-`submission_id` VARCHAR(10),
-`resolved` INT DEFAULT 0, `channel_id` INT, `resolved_at` DATETIME DEFAULT NULL);
+CREATE TABLE IF NOT EXISTS posts (
+  `post_id` VARCHAR(10),
+  `resolved` INT DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS reports (
+  `submission_id` VARCHAR(10),
+  `resolved` INT DEFAULT 0
+);
